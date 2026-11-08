@@ -1,9 +1,13 @@
-import {test} from 'node:test';import assert from 'node:assert/strict';import {spawn} from 'node:child_process';import {randomBytes,randomUUID} from 'node:crypto';import {readFile} from 'node:fs/promises';
+import {test} from 'node:test';import assert from 'node:assert/strict';import {spawn,spawnSync} from 'node:child_process';import {randomBytes,randomUUID} from 'node:crypto';import {readFile} from 'node:fs/promises';
 test('Postgres API lifecycle: authentication, ballots, concurrency, receipts and closure',{skip:!process.env.TEST_DATABASE_URL},async()=>{
  const url=new URL(process.env.TEST_DATABASE_URL);assert.ok(['localhost','127.0.0.1'].includes(url.hostname)&&url.pathname==='/greenwick_test','Integration tests require local greenwick_test database');
  process.env.DATABASE_URL=process.env.TEST_DATABASE_URL;
  const {pool}=await import('../db.js'),{passwordHash}=await import('../security.js');
  await pool.query(await readFile(new URL('../schema.sql',import.meta.url),'utf8'));
+ const bootstrapPassword=randomBytes(24).toString('hex');
+ const boot=spawnSync(process.execPath,['scripts/bootstrap.js'],{cwd:new URL('..',import.meta.url),env:{...process.env,INITIAL_ADMIN_PASSWORD:bootstrapPassword},encoding:'utf8'});assert.equal(boot.status,0,boot.stderr);
+ const original=(await pool.query("SELECT password_hash FROM admins WHERE username='admin'")).rows[0].password_hash;
+ const bootAgain=spawnSync(process.execPath,['scripts/bootstrap.js'],{cwd:new URL('..',import.meta.url),env:{...process.env,INITIAL_ADMIN_PASSWORD:randomBytes(24).toString('hex')},encoding:'utf8'});assert.equal(bootAgain.status,0,bootAgain.stderr);assert.equal((await pool.query("SELECT password_hash FROM admins WHERE username='admin'")).rows[0].password_hash,original,'Restart cannot reset administrator');
  const username=randomUUID(),password=randomBytes(24).toString('hex');await pool.query('INSERT INTO admins VALUES($1,$2,$3)',[randomUUID(),username,passwordHash(password)]);
  const origin='http://localhost:3187';const server=spawn(process.execPath,['server.js'],{cwd:new URL('..',import.meta.url),env:{...process.env,DATABASE_URL:process.env.TEST_DATABASE_URL,APP_ORIGIN:origin,PORT:'3187',NODE_ENV:'test',SESSION_SECRET:randomBytes(48).toString('hex'),BALLOT_KEY:randomBytes(32).toString('hex')},stdio:'ignore'});
  try{

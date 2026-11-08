@@ -1,6 +1,7 @@
 import express from 'express';import helmet from 'helmet';import {rateLimit} from 'express-rate-limit';import {randomBytes,randomUUID} from 'node:crypto';import {fileURLToPath} from 'node:url';import {pool} from './db.js';import {hash,codeHash,verify,encrypt,decrypt} from './security.js';import {validVote,tally} from './tally.js';
+process.env.APP_ORIGIN ||= process.env.RENDER_EXTERNAL_URL;
 const app=express(),prod=process.env.NODE_ENV==='production';
-if(!process.env.APP_ORIGIN||!process.env.SESSION_SECRET||process.env.SESSION_SECRET.length<32||! /^[a-f0-9]{64}$/i.test(process.env.BALLOT_KEY||''))throw Error('Configure APP_ORIGIN, SESSION_SECRET (32+ characters), BALLOT_KEY (64 hex).');
+if(!process.env.APP_ORIGIN||!process.env.SESSION_SECRET||process.env.SESSION_SECRET.length<32||(process.env.BALLOT_KEY||'').length<32)throw Error('Configure APP_ORIGIN, SESSION_SECRET (32+ characters), BALLOT_KEY (32+ random characters or 64 hex).');
 if(prod&&(!process.env.DATABASE_URL||!process.env.APP_ORIGIN.startsWith('https://')))throw Error('Production requires Neon and HTTPS.');
 if(process.env.TRUST_PROXY==='1')app.set('trust proxy',1);
 app.use(helmet());app.use(express.json({limit:'32kb'}));app.use('/api',rateLimit({windowMs:60000,limit:100}));

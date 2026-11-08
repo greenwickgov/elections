@@ -6,3 +6,5 @@ test('majority winner and unresolved elimination tie',()=>{assert.equal(tally('p
 test('empty count has no winner',()=>assert.equal(tally('fptp',['A','B'],[]).winner,null));
 test('ballot encryption authenticates ciphertext and election ID',()=>{process.env.BALLOT_KEY='a'.repeat(64);const encrypted=encrypt([1,0],'election-a');assert.deepEqual(decrypt(encrypted,'election-a'),[1,0]);assert.throws(()=>decrypt(encrypted,'election-b'));const b=Buffer.from(encrypted,'base64');b[b.length-1]^=1;assert.throws(()=>decrypt(b.toString('base64'),'election-a'));});
 test('passwords are salted and checked',()=>{const a=passwordHash('correct horse battery');assert.notEqual(a,passwordHash('correct horse battery'));assert.equal(verify('correct horse battery',a),true);assert.equal(verify('wrong password',a),false);});
+
+test('cloud-generated ballot secrets support authenticated encryption',()=>{process.env.BALLOT_KEY='random-cloud-generated-secret-with-entropy-123456789';const c=encrypt([0,1],'cloud');assert.deepEqual(decrypt(c,'cloud'),[0,1]);});

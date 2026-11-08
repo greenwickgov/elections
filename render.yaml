@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     buildCommand: npm ci
-    startCommand: npm start
+    startCommand: npm run cloud:start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -15,9 +15,9 @@ services:
         value: '1'
       - key: DATABASE_URL
         sync: false
-      - key: APP_ORIGIN
-        sync: false
       - key: SESSION_SECRET
         generateValue: true
       - key: BALLOT_KEY
+        generateValue: true
+      - key: INITIAL_ADMIN_PASSWORD
         sync: false

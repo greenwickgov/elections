@@ -1,1 +1,22 @@
-{"name":"greenwick-votes","version":"1.0.0","private":true,"type":"module","engines":{"node":">=22"},"scripts":{"start":"node --env-file-if-exists=.env server.js","migrate":"node --env-file-if-exists=.env scripts/migrate.js","admin":"node --env-file-if-exists=.env scripts/admin.js","test":"node --test"},"dependencies":{"express":"^5.1.0","pg":"^8.16.3","helmet":"^8.1.0","express-rate-limit":"^8.1.0"}}
+{
+  "name": "greenwick-votes",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "migrate": "node --env-file-if-exists=.env scripts/migrate.js",
+    "admin": "node --env-file-if-exists=.env scripts/admin.js",
+    "test": "node --test",
+    "cloud:start": "npm run migrate && node scripts/bootstrap.js && npm start"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "pg": "^8.16.3",
+    "helmet": "^8.1.0",
+    "express-rate-limit": "^8.1.0"
+  }
+}

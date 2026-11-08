@@ -2,6 +2,19 @@
 
 A GitHub-ready election portal for the Commonwealth of Greenwick. Emerald, ivory and gold identity; responsive rounded layouts; pill navigation; keyboard-accessible ballot controls. Uses Neon Postgres and a Node.js/Express server. No Supabase dependency.
 
+## Activate online — no local server
+
+[Deploy this repository to Render](https://render.com/deploy?repo=https://github.com/greenwickgov/elections)
+
+The Blueprint asks for only:
+
+- `DATABASE_URL`: your Neon pooled connection URL (retain TLS; prefer sslmode=verify-full).
+- `INITIAL_ADMIN_PASSWORD`: your chosen strong password, 14–256 characters.
+
+Render generates SESSION_SECRET and BALLOT_KEY privately. The app obtains its public origin from RENDER_EXTERNAL_URL. Startup automatically runs the schema migration and creates username **admin** only if no administrator exists. Subsequent restarts never overwrite its password. After the initial deployment, remove INITIAL_ADMIN_PASSWORD from the hosting environment; the salted password hash is already in Neon. Keep SESSION_SECRET and BALLOT_KEY unchanged and securely backed up.
+
+Use the resulting Render URL for all voting and administrator sign-in. The GitHub Pages address is a static portal, not the application server. The free Render plan is selected explicitly; it sleeps after inactivity. Choose an appropriate paid plan separately if uninterrupted availability is needed.
+
 ## Included
 
 - Administrator sign-in with salted scrypt password hashes, hashed expiring sessions, HttpOnly cookies and same-origin mutation checks.
@@ -52,13 +65,7 @@ The application is committed at the root of greenwickgov/elections; no upload or
 
 **GitHub Pages is unsuitable:** it cannot run the server, keep database credentials private or atomically protect ballots. Deploy the GitHub repository to Render or another HTTPS Node.js host. A Dockerfile and Render blueprint are included.
 
-For Render:
-
-1. Create a Blueprint from the GitHub repository using `render.yaml`, or create a Node web service with build command `npm ci` and start command `npm start`.
-2. Set `DATABASE_URL` to your Neon pooled URL; set `APP_ORIGIN` to the exact public HTTPS origin (no trailing slash), and `BALLOT_KEY` to 64 random hex characters. The blueprint generates SESSION_SECRET automatically. For manual services, set it yourself.
-3. Set `NODE_ENV=production`. Set `TRUST_PROXY=1` only when requests pass through exactly one trusted host proxy. Otherwise leave it 0 or configure the deployment's network topology appropriately before use.
-4. Run `npm run migrate` and provision the administrator from a trusted environment using the same Neon database. These are explicit operator steps; migrations do not run automatically on every server start.
-5. Deploy and verify `/api/health` returns `{ "ok": true }`, then complete the rehearsal below before opening voting.
+For Render, use the activation instructions at the top of this README. The Blueprint uses `npm run cloud:start`, which migrates the schema, provisions the initial admin if needed, and starts the application. No shell access or local commands are needed. For another host, follow the manual environment and administrator instructions.
 
 Do not expose DATABASE_URL, SESSION_SECRET or BALLOT_KEY in frontend code, GitHub commits, build artifacts or client-visible environment variables. Keep the hostname stable and avoid redirects between origins after issuing access codes.
 
