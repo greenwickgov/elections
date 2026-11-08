@@ -2,6 +2,7 @@ services:
   - type: web
     name: greenwick-votes
     runtime: node
+    plan: free
     buildCommand: npm ci
     startCommand: npm start
     healthCheckPath: /api/health

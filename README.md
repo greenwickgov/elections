@@ -48,7 +48,7 @@ GitHub CI includes an isolated Postgres service and a full API lifecycle test co
 
 ## GitHub and deployment
 
-Upload the contents of this folder to a new GitHub repository; the package root must contain package.json. The included GitHub Actions workflow installs locked dependencies, checks syntax and runs counting/cryptography tests.
+The application is committed at the root of greenwickgov/elections; no upload or folder restructuring is required. The included GitHub Actions workflow installs locked dependencies, checks syntax and runs counting/cryptography tests.
 
 **GitHub Pages is unsuitable:** it cannot run the server, keep database credentials private or atomically protect ballots. Deploy the GitHub repository to Render or another HTTPS Node.js host. A Dockerfile and Render blueprint are included.
 
@@ -87,7 +87,7 @@ For consequential use, arrange independent security review, administrator MFA th
 
 - Seven automated tests cover validation, majority/transfer counts, ties, empty elections, authenticated encryption/tampering and password hashing.
 - JavaScript syntax checked; homepage, administrator sign-in and receipt-page navigation inspected in a browser.
-- No live Neon credentials were available. Migrations, authentication, race behavior and the complete vote lifecycle have **not** been integration-tested against Neon.
+- The live Neon schema and rollback-only SQL check passed. The complete HTTP authentication and ballot lifecycle has not been tested against Neon; GitHub CI runs that lifecycle against an isolated Postgres database.
 
 ### Mandatory pre-opening rehearsal
 
