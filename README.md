@@ -2,6 +2,14 @@
 
 A GitHub-ready election portal for the Commonwealth of Greenwick. Emerald, ivory and gold identity; responsive rounded layouts; pill navigation; keyboard-accessible ballot controls. Uses Neon Postgres and a Node.js/Express server. No Supabase dependency.
 
+## Live service
+
+Public application: https://greenwick-votes.onrender.com/
+
+Admin console: https://greenwick-votes.onrender.com/#admin
+
+GitHub Pages forwards to the hosted application. The service runs in Render's Ohio region on the free compute plan and uses the existing Neon database. The initial administrator username is `admin`; its generated initial password is retained privately as `INITIAL_ADMIN_PASSWORD` in the Render service environment for the owner to retrieve. Do not publish this value. Keep the ballot and session keys stable.
+
 ## Activate online — no local server
 
 [Deploy this repository to Render](https://render.com/deploy?repo=https://github.com/greenwickgov/elections)
