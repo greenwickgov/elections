@@ -1,0 +1,32 @@
+name: Verify voting application
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: greenwick
+          POSTGRES_PASSWORD: ci-test-only-password
+          POSTGRES_DB: greenwick_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U greenwick -d greenwick_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgresql://greenwick:ci-test-only-password@localhost:5432/greenwick_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: node --check server.js && node --check public/app.js
+      - run: npm test
